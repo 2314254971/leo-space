@@ -166,6 +166,14 @@ git remote set-url <your hub name> <yuor hub url>
 git remote rm name  # 删除远程仓库
 ```
 
+## 查看提交历史
+
+```
+git log
+```
+
+
+
 ## 代码提交
 
 ```bat

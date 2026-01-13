@@ -1,3 +1,16 @@
+## 文件夹
+
+```shell
+# 列出文件夹下文件总占用
+du -sh /home/user/Documents
+# 输出：2.3G    /home/user/Documents
+
+```
+
+
+
+## 安装package问题
+
 apt安装时找不到包大概率是源有问题
 
 关于换源后仍旧有概率遇到如下问题
