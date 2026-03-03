@@ -47,6 +47,10 @@ apt安装时找不到包大概率是源有问题
 # 防火墙
 
 ```shell
+#启动防火墙
+systemctl start firewalld.service #开启服务
+systemctl enable firewalld.service #设置开机启动
+
 #查看版本
 firewall-cmd --version
 
