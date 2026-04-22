@@ -7,6 +7,41 @@ du -sh /home/user/Documents
 
 ```
 
+## 文件操作
+
+移动
+
+```
+mv 【文件名或者文件夹名】 【目标目录】
+```
+
+
+
+## 后台运行
+
+```
+nohup your_program > output.log 2>&1 &
+```
+
+- `>`：重定向标准输出（stdout）
+- `2>&1`：把标准错误（stderr）合并到 stdout
+- `&`：后台运行
+- `nohup`：忽略 SIGHUP 信号（终端断开不终止程序）
+
+**默认行为**：如果不指定重定向，`nohup` 会自动把输出写到当前目录的 `nohup.out`。
+
+
+
+## 端口占用
+
+```
+# 查看 8080 端口被哪个进程占用
+sudo lsof -i :8080
+
+# 或
+sudo ss -tlnp | grep 8080
+```
+
 
 
 ## 安装package问题

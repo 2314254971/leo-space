@@ -81,7 +81,108 @@ Connect方法用于将生成的组件和变量（变量名为控件的Name属性
 
 
 
-设计模式：MVVM，界面和功能分离
+## 设计模式
+
+MVVM，界面和功能分离
+
+
+
+## 线程
+
+**WPF 强制要求 UI 线程为单线程公寓（STA）**
+
+| 特性                      | 说明                                     |
+| ------------------------- | ---------------------------------------- |
+| **主线程 = UI 线程**      | 创建 `Application` 和 `Window` 的线程    |
+| **STA 模式**              | Single-Threaded Apartment，COM 要求      |
+| **Dispatcher 关联**       | 每个 UI 线程有一个 `Dispatcher` 对象     |
+| **子线程无法直接访问 UI** | 必须通过 `Dispatcher.Invoke/BeginInvoke` |
+
+```C#
+// ❌ 错误：在子线程直接操作 UI
+Task.Run(() => {
+    Button.Content = "Hello";  // 抛 InvalidOperationException
+});
+
+// ✅ 正确：通过 Dispatcher 回到 UI 线程
+Task.Run(() => {
+    Dispatcher.Invoke(() => {
+        Button.Content = "Hello";
+    });
+});
+```
+
+
+
+2.**所有 UI 刷新都在主线程（UI线程）完成**
+
+WPF 渲染管线
+
+```plain
+┌─────────────┐     ┌─────────────┐     ┌─────────────┐
+│   布局计算   │ → │   渲染指令   │ → │   呈现到屏幕  │
+│ Measure/Arrange│   │ DrawingContext│   │   D3D/DirectX │
+└─────────────┘     └─────────────┘     └─────────────┘
+      ↑                    ↑                  ↑
+   主线程执行            主线程执行           主线程提交
+                                              ↓
+                                        ┌─────────────┐
+                                        │  GPU 实际绘制  │
+                                        │  （可异步）    │
+                                        └─────────────┘
+```
+
+- **Measure、Arrange、Render**：都在 UI 线程
+- **GPU 绘制**：WPF 使用 DirectX，**提交渲染指令**在 UI 线程，**GPU 实际执行**可异步
+- ** compositing（合成）**：DWM（桌面窗口管理器）在另一个进程处理
+
+3.**所有路由事件都在 UI 线程触发**
+
+事件分发流程
+
+```plain
+用户点击鼠标
+      ↓
+Windows 消息队列 (WM_LBUTTONDOWN)
+      ↓
+WPF Dispatcher 提取消息
+      ↓
+命中测试 (HitTest) → 找到 Button
+      ↓
+创建路由事件 (RoutedEvent)
+      ↓
+调用你的 Click 事件处理器 ← 此时仍在 UI 线程
+```
+
+
+
+4.误区
+
+```
+private async void Button_Click(object sender, RoutedEventArgs e)
+{
+    // ① 这里：UI 线程
+    Button.Content = "加载中...";  // ✅ 安全
+    
+    await Task.Delay(1000);  // 让出 UI 线程
+    
+    // ② await 后：线程池线程（默认）
+    // Button.Content = "完成";  // ❌ 可能抛异常！
+    
+    // ✅ 正确做法
+    await Dispatcher.InvokeAsync(() => {
+        Button.Content = "完成";
+    });
+}
+```
+
+`async void` 事件处理器中，`await` 之后默认可能在线程池恢复，需要手动切回 UI 线程。
+
+
+
+WPF 的这个设计保证了 UI 的一致性（无竞态条件），代价是**不能在 UI 线程做耗时操作**。
+
+
 
 ## 界面设计
 
