@@ -81,3 +81,11 @@ echo "Hello from VS Code!\n";
 ?>
 ```
 
+
+
+快速启动服务（直接启动web服务）
+
+```shell
+php -S localhost:8000
+```
+
