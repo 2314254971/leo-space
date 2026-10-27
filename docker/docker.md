@@ -52,6 +52,57 @@ docker rmi -f [镜像ID或名称]
 docker rmi $(docker images -q)
 ```
 
+## 容器
+
+```
+# 删除已停止的容器
+docker rm container_name
+docker rm abc123
+
+# 强制删除运行中的容器
+docker rm -f container_name
+
+# 删除多个容器
+docker rm container1 container2 container3
+```
+
+
+
+```
+# 列出正在运行的容器
+docker ps
+
+# 列出所有容器（包括已停止）
+docker ps -a
+
+# 只显示容器 ID
+docker ps -q
+
+# 显示所有容器的 ID（含已停止）
+docker ps -aq
+
+# 格式化输出
+docker ps --format "table {{.ID}}\t{{.Names}}\t{{.Status}}\t{{.Image}}"
+```
+
+日志：
+
+```
+# 查看末尾 100 行日志
+docker logs --tail 100 container_name
+
+# 实时跟踪最新日志（类似 tail -f）
+docker logs -f container_name
+
+# 查看末尾 100 行并持续跟踪
+docker logs --tail 100 -f container_name
+
+# 查看最近 5 分钟的日志
+docker logs --since 5m container_name
+```
+
+
+
 
 
 # docker yaml编写
@@ -251,5 +302,29 @@ docker save -o myimage_latest.tar myimage:latest
 
 
 
-- 在目标服务器上，使用命令 docker load -i images.tar，先加载镜像，然后再compose文件内调用即可
+- 在目标服务器上，使用命令 `docker load -i images.tar`，先加载镜像，然后再compose文件内调用即可
+
+
+
+
+
+## docker删除镜像
+
+```shell
+# 删除指定镜像（按名称或 ID）
+docker rmi myapp:1.0
+docker rmi abc123def456
+
+# 强制删除（即使被容器使用）
+docker rmi -f myapp:1.0
+
+# 删除多个镜像
+docker rmi image1 image2 image3
+
+docker rmi <image>        # 删除镜像
+docker image rm <image>   # 同上
+docker image prune        # 删除悬空镜像
+docker system prune       # 全面清理
+```
+
 
